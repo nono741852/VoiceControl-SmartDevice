@@ -22,6 +22,9 @@ public:
     AudioRecorder(QWidget *parent = nullptr);
     ~AudioRecorder();
 
+    // 在public部分添加
+    //void releaseResources();// 释放资源函数
+
 private:
     /* 录音类 */
     QAudioRecorder *m_audioRecorder = nullptr;

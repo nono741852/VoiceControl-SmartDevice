@@ -2,10 +2,9 @@
 Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 * @projectName   02_asr_demo
 * @brief         mainwindow.cpp
-* @author        Deng Zhimao
-* @email         1252699831@qq.com
-* @net           www.openedv.com
-* @date          2021-06-04
+* @author        Rong Yannan
+* @email         ryn18247501992@163.com
+* @date          2026-01-22
 *******************************************************************/
 #include "mainwindow.h"
 #include <QDebug>
@@ -32,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 新增：传感器数据标签设置
     sensorDataLabel->setMinimumSize(240, 100);
-    sensorDataLabel->setStyleSheet("color: #4CAF50; font-size: 16px");
-    sensorDataLabel->setText("传感器数据：\n光照强度：-\n接近距离：-\n红外数据：-");
+    sensorDataLabel->setStyleSheet("color: #f8f8f8ff; font-size: 18px");
+    sensorDataLabel->setText("传感器数据：\n光照强度：- 接近距离：- 红外数据：-");
     sensorDataLabel->setAlignment(Qt::AlignCenter);
     sensorDataLabel->hide(); // 初始隐藏
 
@@ -84,6 +83,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     /* LED */
     myLed = new Led(this);
+    /* 音乐播放器 */
+    myMusicPlayer = new MusicPlayer(this);
+
+    // 添加一些默认音乐（根据实际情况修改路径）
+    // myMusicPlayer->addMusic(":/audio/music1.mp3");
+    // myMusicPlayer->addMusic(":/audio/music2.mp3");
 
     /* 新增：传感器采集线程 */
     m_sensorThread = new SensorThread(this);
@@ -99,12 +104,17 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
      delete m_sensorThread; // 清理传感器线程
+     delete myMusicPlayer;  // 清理音乐播放器（如果已创建）
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event){
 
     if (watched == movieLabel && event->type() == QEvent::MouseButtonPress) {
         myBeep->setbeepState(false);//保证点击开始录音时 停止报警
+        // 新增：无论是否在播放，都暂停音乐
+        if (myMusicPlayer->isPlaying()) {
+            myMusicPlayer->pause();
+        }
         QSound::play(":/audio/sound.wav");
         if (myMovie->state() != QMovie::Running) {
             /* 等待QSound播放完,1.5s后再录音 */
@@ -148,10 +158,14 @@ void MainWindow::onAsrReadyData(QString str)
     qDebug() << "传感器线程启动状态：" << m_sensorThread->isRunning();
     if (str.contains("开灯"))
         myLed->setLedState(true);
+
     else if (str.contains("关灯"))
         myLed->setLedState(false);
+
     else if (str.contains("报警")||str.contains("鸣笛"))
         myBeep->setbeepState(true);
+
+
     // 新增：处理传感器数据查询
     else if (str.contains("光照强度") || str.contains("传感器数据") || str.contains("环境数据")) {
         qDebug() << "执行传感器数据查询";
@@ -180,7 +194,7 @@ void MainWindow::onAsrReadyData(QString str)
         QString ps = m_sensorThread->getPsData();
         QString ir = m_sensorThread->getIrData();
 
-        QString sensorText = QString("传感器数据：\n光照强度：%1\n接近距离：%2\n红外数据：%3")
+        QString sensorText = QString("传感器数据：\n光照强度：%1 接近距离：%2 红外数据：%3")
                         .arg(als)
                         .arg(ps)
                         .arg(ir);
@@ -189,13 +203,58 @@ void MainWindow::onAsrReadyData(QString str)
         textLabel->setText("环境数据已更新");
 
 
-        // 5秒后自动停止显示传感器数据
-        QTimer::singleShot(5000, [this]() {
-        m_showingSensorData = false;
-        sensorDataLabel->hide();
-        textLabel->setText("请点击，开始说话...");});
+        // 7秒后自动停止显示传感器数据
+        QTimer::singleShot(7000, [this]() {
+           m_showingSensorData = false;
+           sensorDataLabel->hide();
+           textLabel->setText("请点击，开始说话...");
+       });
        }
-    else {
+
+    // 新增：处理播放音乐命令
+    else if (str.contains("播放音乐") || str.contains("播放歌曲")) {
+           // 新增：处理播放音乐命令
+           qDebug() << "执行播放音乐命令";
+           myMusicPlayer->play();
+           QString currentMusic = myMusicPlayer->getCurrentMusicName();
+           textLabel->setText(QString("正在播放: %1").arg(currentMusic));
+       }
+       else if (str.contains("暂停音乐") || str.contains("暂停歌曲")) {
+           // 新增：处理暂停音乐命令
+           qDebug() << "执行暂停音乐命令";
+           textLabel->setText("音乐已暂停");
+           myMusicPlayer->pause();
+           QTimer::singleShot(5000, [this]() {
+           textLabel->setText("请点击，开始说话...");
+       });
+       }
+       else if (str.contains("停止音乐") || str.contains("停止歌曲")) {
+           // 新增：处理停止音乐命令
+           qDebug() << "执行停止音乐命令";
+           textLabel->setText("音乐已停止");
+           myMusicPlayer->stop();
+           QTimer::singleShot(5000, [this]() {
+           textLabel->setText("请点击，开始说话...");
+       });
+       }
+       else if (str.contains("下一首") || str.contains("下一曲")) {
+           // 新增：处理下一首音乐命令
+           qDebug() << "执行下一首音乐命令";
+           QString currentMusic = myMusicPlayer->getCurrentMusicName();
+           textLabel->setText(QString("正在播放 %1").arg(currentMusic));
+           myMusicPlayer->next();
+       }
+       else if (str.contains("上一首") || str.contains("上一曲")) {
+           // 新增：处理上一首音乐命令
+           qDebug() << "执行上一首音乐命令";
+           QString currentMusic = myMusicPlayer->getCurrentMusicName();
+           textLabel->setText(QString("正在播放 %1").arg(currentMusic));
+           myMusicPlayer->previous();
+       }
+
+
+
+       else {
            // 普通语音识别结果
            qDebug() << "执行普通识别结果处理";
            textLabel->setText("识别结果是:\n" + str);
@@ -216,7 +275,7 @@ void MainWindow::onSensorDataUpdated()
     QString ps = m_sensorThread->getPsData();
     QString ir = m_sensorThread->getIrData();
 
-    QString sensorText = QString("传感器数据：\n光照强度：%1\n接近距离：%2\n红外数据：%3")
+    QString sensorText = QString("传感器数据：\n光照强度：%1 接近距离：%2 红外数据：%3")
                         .arg(als)
                         .arg(ps)
                         .arg(ir);
@@ -224,7 +283,7 @@ void MainWindow::onSensorDataUpdated()
     sensorDataLabel->setText(sensorText);
 
     // 如果正在显示传感器数据，更新textLabel
-    if (m_showingSensorData) {
-        textLabel->setText("环境数据已更新");
-    }
+    // if (m_showingSensorData) {
+    //     textLabel->setText("环境数据已更新");
+    // }
 }

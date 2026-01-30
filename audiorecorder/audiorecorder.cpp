@@ -30,16 +30,16 @@ AudioRecorder::AudioRecorder(QWidget *parent)
     /* 用于探测缓冲区的数据 */
     m_probe = new QAudioProbe(this);
     //ryn：在这里插入排查代码---------------------
-    QList<QAudioDeviceInfo> devices = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
-    qDebug() << "正在排查硬件……当前系统可用麦克风数量"<< devices.count();
+    // QList<QAudioDeviceInfo> devices = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+    // qDebug() << "正在排查硬件……当前系统可用麦克风数量"<< devices.count();
 
-    if(devices.isEmpty()){
-        qDebug() <<"致命错误：系统为检测到任何麦克风设备！";
-    }else{
-        for(auto &device: devices){
-            qDebug() << "检测到设备名称： " << device.deviceName();
-        }
-    }
+    // if(devices.isEmpty()){
+    //     qDebug() <<"致命错误：系统为检测到任何麦克风设备！";
+    // }else{
+    //     for(auto &device: devices){
+    //         qDebug() << "检测到设备名称： " << device.deviceName();
+    //     }
+    // }
     //----------------------------------------------
     /* 信号槽连接，更新录音level显示 */
     connect(m_probe, &QAudioProbe::audioBufferProbed,
@@ -161,6 +161,18 @@ void AudioRecorder::stopRecorder()
     m_audioRecorder->stop();
 }
 
+// void AudioRecorder::releaseResources()
+// {
+//     // 停止录音
+//     stopRecorder();
+    
+//     // 断开探测
+//     if (m_probe->source() == m_audioRecorder) {
+//         m_probe->setSource(nullptr);
+//     }
+    
+//     qDebug() << "音频录制资源已释放";
+// }
 
 void AudioRecorder::updateProgress(qint64 duration)
 {
@@ -298,6 +310,6 @@ void AudioRecorder::processBuffer(const QAudioBuffer& buffer)
     QVector<qreal> levels = getBufferLevels(buffer);
     for (int i = 0; i < levels.count(); ++i) {
         /* 打印音量等级 */
-         qDebug()<<"音量等级"<<levels.at(i)<<endl;
+        // qDebug()<<"音量等级"<<levels.at(i)<<endl;
     }
 }

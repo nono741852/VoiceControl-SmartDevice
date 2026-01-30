@@ -2,7 +2,7 @@
 * @projectName   beep
 * @brief         beep.cpp
 * @author        Rong Yannan
-* @email         ryn18247501992@qq.com
+* @email         ryn18247501992@163.com
 * @date          2026-01-22
 *******************************************************************/
 #include "beep.h"

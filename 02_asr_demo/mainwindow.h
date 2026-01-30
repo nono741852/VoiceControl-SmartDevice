@@ -2,10 +2,9 @@
 Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 * @projectName   02_asr_demo
 * @brief         mainwindow.h
-* @author        Deng Zhimao
-* @email         1252699831@qq.com
-* @net           www.openedv.com
-* @date          2021-06-04
+* @author        Rong Yannan
+* @email         ryn18247501992@163.com
+* @date          2026-01-22
 *******************************************************************/
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -16,12 +15,13 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 #include <QMovie>
 #include <QTimer>
 #include <QHBoxLayout>
-#include "../audiorecorder/audiorecorder.h"
-#include "../asr/asr.h"
-#include "../led/led.h"
-#include "../beep/beep.h"
-#include "../sensor/ap3216c.h"
-#include "../sensor/sensorthread.h"
+#include "../audiorecorder/audiorecorder.h"// 引入录音类
+#include "../asr/asr.h"// 引入ASR类
+#include "../led/led.h"// 引入LED类
+#include "../beep/beep.h"// 引入蜂鸣器类
+#include "../sensor/ap3216c.h"// 引入AP3216C传感器类
+#include "../sensor/sensorthread.h"// 引入传感器线程类
+#include "../musicplayer/musicplayer.h"// 引入音乐播放器类
 
 class Asr;
 class AudioRecorder;
@@ -82,6 +82,8 @@ private:
     Beep *myBeep;
     // 传感器数据显示状态
     bool m_showingSensorData;
+    /* 音乐播放器 */
+    MusicPlayer *myMusicPlayer;
 
 
 private slots:

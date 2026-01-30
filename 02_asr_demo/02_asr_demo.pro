@@ -35,3 +35,4 @@ include(../asr/asr.pri)
 include(../led/led.pri)
 include(../beep/beep.pri)
 include(../sensor/sensor.pri)  # 新增：引用sensor模块
+include(../musicplayer/musicplayer.pri)  # 新增：引用musicplayer模块

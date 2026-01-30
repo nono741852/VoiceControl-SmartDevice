@@ -2,10 +2,9 @@
 Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 * @projectName   sensor
 * @brief         ap3216c.cpp
-* @author        Deng Zhimao
-* @email         1252699831@qq.com
-* @net           www.openedv.com
-* @date          2020-07-10
+* @author        Rong Yannan
+* @email         ryn18247501992@163.com
+* @date          2026-01-22
 *******************************************************************/
 #include "ap3216c.h"
 #include <stdio.h>

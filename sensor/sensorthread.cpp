@@ -27,7 +27,7 @@ void SensorThread::startCapture()
 {
     QMutexLocker locker(&m_mutex);//自动上锁，防止多线程竞争
     m_isRunning = true;           //设置运行标志
-
+    qDebug() << "启动传感器数据采集线程";
     if (!isRunning()) {            //检查线程是否已经在运行
         start();                    //调用线程
     }

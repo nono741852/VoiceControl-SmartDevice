@@ -3,7 +3,7 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 * @projectName   sensor
 * @brief         ap3216c.h
 * @author        Rong Yannan
-* @email         ryn18247501992@qq.com
+* @email         ryn18247501992@163.com
 * @date          2026-01-22
 *******************************************************************/
 #ifndef AP3216C_H

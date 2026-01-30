@@ -59,14 +59,16 @@ SOURCES       = 02_asr_demo/main.cpp \
 		led/led.cpp \
 		beep/beep.cpp \
 		sensor/ap3216c.cpp \
-		sensor/sensorthread.cpp qrc_res.cpp \
+		sensor/sensorthread.cpp \
+		musicplayer/musicplayer.cpp qrc_res.cpp \
 		moc_mainwindow.cpp \
 		moc_audiorecorder.cpp \
 		moc_asr.cpp \
 		moc_led.cpp \
 		moc_beep.cpp \
 		moc_ap3216c.cpp \
-		moc_sensorthread.cpp
+		moc_sensorthread.cpp \
+		moc_musicplayer.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		audiorecorder.o \
@@ -75,6 +77,7 @@ OBJECTS       = main.o \
 		beep.o \
 		ap3216c.o \
 		sensorthread.o \
+		musicplayer.o \
 		qrc_res.o \
 		moc_mainwindow.o \
 		moc_audiorecorder.o \
@@ -82,7 +85,8 @@ OBJECTS       = main.o \
 		moc_led.o \
 		moc_beep.o \
 		moc_ap3216c.o \
-		moc_sensorthread.o
+		moc_sensorthread.o \
+		moc_musicplayer.o
 DIST          = /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/spec_pre.prf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/common/unix.conf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/common/linux.conf \
@@ -254,6 +258,7 @@ DIST          = /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linu
 		02_asr_demo/led/led.pri \
 		02_asr_demo/beep/beep.pri \
 		02_asr_demo/sensor/sensor.pri \
+		02_asr_demo/musicplayer/musicplayer.pri \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/resolve_config.prf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/default_post.prf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/qml_debug.prf \
@@ -276,14 +281,16 @@ DIST          = /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linu
 		led/led.h \
 		beep/beep.h \
 		sensor/ap3216c.h \
-		sensor/sensorthread.h 02_asr_demo/main.cpp \
+		sensor/sensorthread.h \
+		musicplayer/musicplayer.h 02_asr_demo/main.cpp \
 		02_asr_demo/mainwindow.cpp \
 		audiorecorder/audiorecorder.cpp \
 		asr/asr.cpp \
 		led/led.cpp \
 		beep/beep.cpp \
 		sensor/ap3216c.cpp \
-		sensor/sensorthread.cpp
+		sensor/sensorthread.cpp \
+		musicplayer/musicplayer.cpp
 QMAKE_TARGET  = 02_asr_demo
 DESTDIR       = 
 TARGET        = 02_asr_demo
@@ -466,6 +473,7 @@ Makefile: 02_asr_demo/02_asr_demo.pro /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cor
 		led/led.pri \
 		beep/beep.pri \
 		sensor/sensor.pri \
+		musicplayer/musicplayer.pri \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/resolve_config.prf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/default_post.prf \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/qml_debug.prf \
@@ -656,6 +664,7 @@ asr/asr.pri:
 led/led.pri:
 beep/beep.pri:
 sensor/sensor.pri:
+musicplayer/musicplayer.pri:
 /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/resolve_config.prf:
 /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/default_post.prf:
 /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/qml_debug.prf:
@@ -690,8 +699,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents 02_asr_demo/res.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents 02_asr_demo/mainwindow.h audiorecorder/audiorecorder.h asr/asr.h led/led.h beep/beep.h sensor/ap3216c.h sensor/sensorthread.h $(DISTDIR)/
-	$(COPY_FILE) --parents 02_asr_demo/main.cpp 02_asr_demo/mainwindow.cpp audiorecorder/audiorecorder.cpp asr/asr.cpp led/led.cpp beep/beep.cpp sensor/ap3216c.cpp sensor/sensorthread.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents 02_asr_demo/mainwindow.h audiorecorder/audiorecorder.h asr/asr.h led/led.h beep/beep.h sensor/ap3216c.h sensor/sensorthread.h musicplayer/musicplayer.h $(DISTDIR)/
+	$(COPY_FILE) --parents 02_asr_demo/main.cpp 02_asr_demo/mainwindow.cpp audiorecorder/audiorecorder.cpp asr/asr.cpp led/led.cpp beep/beep.cpp sensor/ap3216c.cpp sensor/sensorthread.cpp musicplayer/musicplayer.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -730,9 +739,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/data/dummy.cpp
 	arm-poky-linux-gnueabi-g++ -march=armv7ve -mfpu=neon -mfloat-abi=hard -mcpu=cortex-a7 -pipe --sysroot=/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi -g -DLINUX=1 -DLINUX=1 -DLINUX=1 -DLINUX=1 -DLINUX=1 -DLINUX=1 -std=gnu++11 -Wall -W -dM -E -o moc_predefs.h /opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_audiorecorder.cpp moc_asr.cpp moc_led.cpp moc_beep.cpp moc_ap3216c.cpp moc_sensorthread.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_audiorecorder.cpp moc_asr.cpp moc_led.cpp moc_beep.cpp moc_ap3216c.cpp moc_sensorthread.cpp moc_musicplayer.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_audiorecorder.cpp moc_asr.cpp moc_led.cpp moc_beep.cpp moc_ap3216c.cpp moc_sensorthread.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_audiorecorder.cpp moc_asr.cpp moc_led.cpp moc_beep.cpp moc_ap3216c.cpp moc_sensorthread.cpp moc_musicplayer.cpp
 moc_mainwindow.cpp: 02_asr_demo/mainwindow.h \
 		audiorecorder/audiorecorder.h \
 		asr/asr.h \
@@ -740,6 +749,7 @@ moc_mainwindow.cpp: 02_asr_demo/mainwindow.h \
 		beep/beep.h \
 		sensor/ap3216c.h \
 		sensor/sensorthread.h \
+		musicplayer/musicplayer.h \
 		moc_predefs.h \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc
 	/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc $(DEFINES) --include /home/rynnono/QT/SmartVoiceTerminal/moc_predefs.h -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/linux-oe-g++ -I/home/rynnono/QT/SmartVoiceTerminal/02_asr_demo -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtMultimedia -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtWidgets -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtGui -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtNetwork -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtCore -I. -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0 -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/arm-poky-linux-gnueabi -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/backward -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include-fixed -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include 02_asr_demo/mainwindow.h -o moc_mainwindow.cpp
@@ -775,6 +785,11 @@ moc_sensorthread.cpp: sensor/sensorthread.h \
 		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc
 	/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc $(DEFINES) --include /home/rynnono/QT/SmartVoiceTerminal/moc_predefs.h -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/linux-oe-g++ -I/home/rynnono/QT/SmartVoiceTerminal/02_asr_demo -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtMultimedia -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtWidgets -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtGui -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtNetwork -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtCore -I. -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0 -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/arm-poky-linux-gnueabi -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/backward -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include-fixed -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include sensor/sensorthread.h -o moc_sensorthread.cpp
 
+moc_musicplayer.cpp: musicplayer/musicplayer.h \
+		moc_predefs.h \
+		/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc
+	/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/bin/moc $(DEFINES) --include /home/rynnono/QT/SmartVoiceTerminal/moc_predefs.h -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/lib/mkspecs/linux-oe-g++ -I/home/rynnono/QT/SmartVoiceTerminal/02_asr_demo -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtMultimedia -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtWidgets -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtGui -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtNetwork -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/QtCore -I. -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0 -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/arm-poky-linux-gnueabi -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include/c++/5.3.0/backward -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/x86_64-pokysdk-linux/usr/lib/arm-poky-linux-gnueabi/gcc/arm-poky-linux-gnueabi/5.3.0/include-fixed -I/opt/fsl-imx-x11/4.1.15-2.1.0/sysroots/cortexa7hf-neon-poky-linux-gnueabi/usr/include musicplayer/musicplayer.h -o moc_musicplayer.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -797,7 +812,8 @@ main.o: 02_asr_demo/main.cpp 02_asr_demo/mainwindow.h \
 		led/led.h \
 		beep/beep.h \
 		sensor/ap3216c.h \
-		sensor/sensorthread.h
+		sensor/sensorthread.h \
+		musicplayer/musicplayer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o 02_asr_demo/main.cpp
 
 mainwindow.o: 02_asr_demo/mainwindow.cpp 02_asr_demo/mainwindow.h \
@@ -806,7 +822,8 @@ mainwindow.o: 02_asr_demo/mainwindow.cpp 02_asr_demo/mainwindow.h \
 		led/led.h \
 		beep/beep.h \
 		sensor/ap3216c.h \
-		sensor/sensorthread.h
+		sensor/sensorthread.h \
+		musicplayer/musicplayer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o 02_asr_demo/mainwindow.cpp
 
 audiorecorder.o: audiorecorder/audiorecorder.cpp audiorecorder/audiorecorder.h
@@ -827,6 +844,9 @@ ap3216c.o: sensor/ap3216c.cpp sensor/ap3216c.h
 sensorthread.o: sensor/sensorthread.cpp sensor/sensorthread.h \
 		sensor/ap3216c.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sensorthread.o sensor/sensorthread.cpp
+
+musicplayer.o: musicplayer/musicplayer.cpp musicplayer/musicplayer.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o musicplayer.o musicplayer/musicplayer.cpp
 
 qrc_res.o: qrc_res.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_res.o qrc_res.cpp
@@ -851,6 +871,9 @@ moc_ap3216c.o: moc_ap3216c.cpp
 
 moc_sensorthread.o: moc_sensorthread.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_sensorthread.o moc_sensorthread.cpp
+
+moc_musicplayer.o: moc_musicplayer.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_musicplayer.o moc_musicplayer.cpp
 
 ####### Install
 
