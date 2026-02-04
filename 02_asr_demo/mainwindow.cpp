@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     myMovie = new QMovie(":/gif/voice_effect.gif");
     /* 设置播放速度，值越大越快 */
-    myMovie->setSpeed(50);
+    myMovie->setSpeed(30);//降低播放速度
     movieLabel->setMovie(myMovie);
     movieLabel->show();
     /* 设置设置化时显示第一帧 */
@@ -70,13 +70,20 @@ MainWindow::MainWindow(QWidget *parent)
     timer1 = new QTimer(this);
     timer2 = new QTimer(this);
     timer3 = new QTimer(this);
-
+    mqttPublishTimer = new QTimer(this);
     connect(timer1, SIGNAL(timeout()), this, SLOT(onTimer1TimeOut()));
     connect(timer2, SIGNAL(timeout()), this, SLOT(onTimer2TimeOut()));
     connect(timer3, SIGNAL(timeout()), this, SLOT(onTimer3TimeOut()));
-
+    connect(mqttPublishTimer, SIGNAL(timeout()), this, SLOT(onMqttPublishTimerTimeout()));
     /* 自定义的录音类 */
     myAudioRecorder = new AudioRecorder(this);
+    // 设置 MQTT 发布定时器，每 8秒发布一次传感器数据
+    mqttPublishTimer->start(8000);
+
+    /* MQTT客户端 */
+    myMqttClient = new MqttClient(this);
+    // 连接到 OneNET
+    myMqttClient->connectToCloud();
 
     /* 自定义的百度云识别录音类 */
     myAsr = new Asr(this);
@@ -86,21 +93,34 @@ MainWindow::MainWindow(QWidget *parent)
     /* 音乐播放器 */
     myMusicPlayer = new MusicPlayer(this);
 
-    // 添加一些默认音乐（根据实际情况修改路径）
-    // myMusicPlayer->addMusic(":/audio/music1.mp3");
-    // myMusicPlayer->addMusic(":/audio/music2.mp3");
-
     /* 新增：传感器采集线程 */
     m_sensorThread = new SensorThread(this);
-    qDebug() << "传感器线程创建：" << m_sensorThread;
-    connect(m_sensorThread, SIGNAL(sensorDataUpdated()), this, SLOT(onSensorDataUpdated()));
+   // qDebug() << "传感器线程创建：" << m_sensorThread;
+   // connect(m_sensorThread, SIGNAL(sensorDataUpdated()), this, SLOT(onSensorDataUpdated()));
 
     // 应用启动时立即启动传感器线程
     m_sensorThread->startCapture();
     qDebug() << "传感器线程启动状态：" << m_sensorThread->isRunning();
     connect(myAsr, SIGNAL(asrReadyData(QString)), this, SLOT(onAsrReadyData(QString)));
-}
 
+
+     // 新增：连接传感器线程信号到 MQTT 客户端槽函数
+     // 连接传感器数据更新信号到MQTT发布槽函数
+    // connect(m_sensorThread, &SensorThread::sensorDataUpdated, this, [this]() {
+    //     // 发布传感器数据到MQTT
+    //     int als = m_sensorThread->getAlsValue();
+    //     int ir = m_sensorThread->getIrValue();
+    //     myMqttClient->publishSensorData(als, ir);
+    // });
+
+    // 连接MQTT远程控制信号
+    connect(myMqttClient, &MqttClient::remoteSwitchReceived, this, &MainWindow::onRemoteSwitchReceived);
+
+    // 初始发布设备状态
+    myMqttClient->publishDeviceState("led", false);
+    myMqttClient->publishDeviceState("beep", false);
+    myMqttClient->publishDeviceState("music", false);
+}
 MainWindow::~MainWindow()
 {
      delete m_sensorThread; // 清理传感器线程
@@ -111,6 +131,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
 
     if (watched == movieLabel && event->type() == QEvent::MouseButtonPress) {
         myBeep->setbeepState(false);//保证点击开始录音时 停止报警
+        sensorDataLabel->hide();//保证点击开始录音时，隐藏传感器数据标签
         // 新增：无论是否在播放，都暂停音乐
         if (myMusicPlayer->isPlaying()) {
             myMusicPlayer->pause();
@@ -127,6 +148,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event){
     return QWidget::eventFilter(watched, event);
 }
 
+/*--------------------------定时器超时槽函数定义-------------------------------*/
 void MainWindow::onTimer1TimeOut()
 {
     /* 停止录音，8s钟的短语音 */
@@ -144,6 +166,7 @@ void MainWindow::onTimer2TimeOut()
     timer1->start(8000);
     /* 开始录音 */
     myAudioRecorder->startRecorder();
+    m_sensorThread->stopCapture();//暂时挂起传感器采集线程，避免录音时的干扰
     timer2->stop();
 }
 
@@ -153,17 +176,39 @@ void MainWindow::onTimer3TimeOut()
     timer3->stop();
 }
 
+// 添加新的槽函数用于MQTT数据发布
+void MainWindow::onMqttPublishTimerTimeout()
+{
+    // 定时发布传感器数据到MQTT
+    //qDebug() << "--- 达到8s发送间隔，数据上报云端 ---";
+    int als = m_sensorThread->getAlsValue();
+    int ir = m_sensorThread->getIrValue();
+    myMqttClient->publishSensorData(als, ir);
+    QString sensorText = QString("传感器数据：\n光照强度：%1 接近距离：%2 红外数据：%3")
+                        .arg(m_sensorThread->getAlsData())
+                        .arg(m_sensorThread->getPsData())
+                        .arg(m_sensorThread->getIrData());
+    sensorDataLabel->setText(sensorText);
+}
+/*------------------------------语音识别函数--------------------------------------*/
 void MainWindow::onAsrReadyData(QString str)
 {
-    qDebug() << "传感器线程启动状态：" << m_sensorThread->isRunning();
+    m_sensorThread->startCapture();//恢复传感器采集线程
     if (str.contains("开灯"))
+    {
         myLed->setLedState(true);
+        myMqttClient->publishDeviceState("led", true);
+    }        
 
-    else if (str.contains("关灯"))
+    else if (str.contains("关灯")){
         myLed->setLedState(false);
+        myMqttClient->publishDeviceState("led", false);
+    }
 
-    else if (str.contains("报警")||str.contains("鸣笛"))
+    else if (str.contains("报警")||str.contains("鸣笛")){
         myBeep->setbeepState(true);
+        myMqttClient->publishDeviceState("beer", true);
+    }
 
 
     // 新增：处理传感器数据查询
@@ -216,6 +261,7 @@ void MainWindow::onAsrReadyData(QString str)
            // 新增：处理播放音乐命令
            qDebug() << "执行播放音乐命令";
            myMusicPlayer->play();
+           myMqttClient->publishDeviceState("music", true);
            QString currentMusic = myMusicPlayer->getCurrentMusicName();
            textLabel->setText(QString("正在播放: %1").arg(currentMusic));
        }
@@ -224,6 +270,7 @@ void MainWindow::onAsrReadyData(QString str)
            qDebug() << "执行暂停音乐命令";
            textLabel->setText("音乐已暂停");
            myMusicPlayer->pause();
+           myMqttClient->publishDeviceState("music", false);
            QTimer::singleShot(5000, [this]() {
            textLabel->setText("请点击，开始说话...");
        });
@@ -233,6 +280,7 @@ void MainWindow::onAsrReadyData(QString str)
            qDebug() << "执行停止音乐命令";
            textLabel->setText("音乐已停止");
            myMusicPlayer->stop();
+           myMqttClient->publishDeviceState("music", false);
            QTimer::singleShot(5000, [this]() {
            textLabel->setText("请点击，开始说话...");
        });
@@ -243,6 +291,7 @@ void MainWindow::onAsrReadyData(QString str)
            QString currentMusic = myMusicPlayer->getCurrentMusicName();
            textLabel->setText(QString("正在播放 %1").arg(currentMusic));
            myMusicPlayer->next();
+           myMqttClient->publishDeviceState("music", true);
        }
        else if (str.contains("上一首") || str.contains("上一曲")) {
            // 新增：处理上一首音乐命令
@@ -250,6 +299,7 @@ void MainWindow::onAsrReadyData(QString str)
            QString currentMusic = myMusicPlayer->getCurrentMusicName();
            textLabel->setText(QString("正在播放 %1").arg(currentMusic));
            myMusicPlayer->previous();
+           myMqttClient->publishDeviceState("music", true);
        }
 
 
@@ -270,10 +320,16 @@ void MainWindow::onAsrReadyData(QString str)
 
 void MainWindow::onSensorDataUpdated()
 {
+    static QTime lastActionTime = QTime::currentTime();
+    // 获取当前时间与上次操作时间的间隔
+    int elapsed = lastActionTime.msecsTo(QTime::currentTime());
     // 更新传感器数据显示
-    QString als = m_sensorThread->getAlsData();
-    QString ps = m_sensorThread->getPsData();
-    QString ir = m_sensorThread->getIrData();
+    // 限制：每 2 秒（2000ms）才允许处理一次数据（包括更新 UI 和发 MQTT）
+    if (elapsed > 2000 || elapsed < 0) {
+        QString als = m_sensorThread->getAlsData();
+        QString ps = m_sensorThread->getPsData();
+        QString ir = m_sensorThread->getIrData();
+    
 
     QString sensorText = QString("传感器数据：\n光照强度：%1 接近距离：%2 红外数据：%3")
                         .arg(als)
@@ -281,9 +337,35 @@ void MainWindow::onSensorDataUpdated()
                         .arg(ir);
 
     sensorDataLabel->setText(sensorText);
-
+    // 更新上次操作时间
+    lastActionTime = QTime::currentTime();
+    }
     // 如果正在显示传感器数据，更新textLabel
     // if (m_showingSensorData) {
     //     textLabel->setText("环境数据已更新");
     // }
+}
+
+//新增2：处理远程控制指令槽函数
+void MainWindow::onRemoteSwitchReceived(QString key, bool value, QString msgId)
+{
+    qDebug() << "收到远程控制指令：" << key << value << msgId;
+
+    if (key == "led") {
+        myLed->setLedState(value);
+        myMqttClient->publishDeviceState("led", value);
+    } else if (key == "beer") {
+        myBeep->setbeepState(value);
+        myMqttClient->publishDeviceState("beer", value);
+    } else if (key == "music") {
+        if (value) {
+            myMusicPlayer->play();
+        } else {
+            myMusicPlayer->pause();
+        }
+        myMqttClient->publishDeviceState("music", value);
+    }
+
+    // 发送回复回执
+    myMqttClient->sendCmdReply(msgId);
 }

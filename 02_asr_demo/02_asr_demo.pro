@@ -1,4 +1,5 @@
-QT       += core gui multimedia
+QT       += core gui multimedia mqtt
+QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -36,3 +37,4 @@ include(../led/led.pri)
 include(../beep/beep.pri)
 include(../sensor/sensor.pri)  # 新增：引用sensor模块
 include(../musicplayer/musicplayer.pri)  # 新增：引用musicplayer模块
+include(../mqttclient/mqttclient.pri)  # 新增：引用mqttclient模块

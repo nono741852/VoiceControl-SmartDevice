@@ -212,7 +212,8 @@ qreal getPeakValue(const QAudioFormat& format)
     case QAudioFormat::SignedInt:
         if (format.sampleSize() == 32)
             return qreal(INT_MAX);
-        if (format.sampleSize() == 16)
+        if (format.sampleSize(
+        ) == 16)
             return qreal(SHRT_MAX);
         if (format.sampleSize() == 8)
             return qreal(CHAR_MAX);

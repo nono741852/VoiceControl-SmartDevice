@@ -22,6 +22,7 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 #include "../sensor/ap3216c.h"// 引入AP3216C传感器类
 #include "../sensor/sensorthread.h"// 引入传感器线程类
 #include "../musicplayer/musicplayer.h"// 引入音乐播放器类
+#include "../mqttclient/mqttclient.h"// 引入MQTT客户端类
 
 class Asr;
 class AudioRecorder;
@@ -65,7 +66,7 @@ private:
     QTimer *timer1;
     QTimer *timer2;
     QTimer *timer3;
-
+    QTimer *mqttPublishTimer; // 新增：控制MQTT数据发布频率的定时器
     /* 事件过滤器 */
     bool eventFilter(QObject *watched, QEvent *event);
 
@@ -84,7 +85,8 @@ private:
     bool m_showingSensorData;
     /* 音乐播放器 */
     MusicPlayer *myMusicPlayer;
-
+    /* MQTT客户端 */
+    MqttClient *myMqttClient;
 
 private slots:
     void onTimer1TimeOut();
@@ -92,6 +94,7 @@ private slots:
     void onTimer3TimeOut();
     void onAsrReadyData(QString);
     void onSensorDataUpdated(); // 新增：传感器数据更新槽函数
-
+    void onRemoteSwitchReceived(QString key, bool value, QString msgId); // 新增：远程控制槽函数
+    void onMqttPublishTimerTimeout(); // 新增：MQTT定时发布槽函数
 };
 #endif // MAINWINDOW_H

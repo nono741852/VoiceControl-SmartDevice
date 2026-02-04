@@ -19,6 +19,10 @@ public:
     QString getPsData(); //接近距离数据
     QString getIrData(); //红外强度数据
 
+    // 获取传感器数据（数值形式）
+    int getAlsValue(); //光强数据
+    int getIrValue(); //红外强度数据
+
 signals:
     // 数据更新信号
     void sensorDataUpdated();
@@ -34,6 +38,8 @@ private:
     QString m_alsData;
     QString m_psData;
     QString m_irData;
+    int m_alsValue; // 数值形式的光强数据
+    int m_irValue; // 数值形式的红外数据
     const int m_updateInterval = 1000; // 更新间隔(毫秒)
 
 };
