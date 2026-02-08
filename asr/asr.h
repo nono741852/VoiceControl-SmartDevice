@@ -48,11 +48,11 @@ private:
     QString accessToken;
 
     /* 获取token的接口*/
-    const QString token_org = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=%1&client_secret=%2&";
+    const QString token_org = "your_token";
 
     /* 填写网页上申请的appkey 如 g_api_key="g8eBUMSokVB1BHGmgxxxxxx" */
     //const QString api_key = "kVcnfD9iW2XVZSMaLMrtLYIz";//原
-    const QString api_key = "D2cTqX2L05nKE5QOT9PtB8ER";//ryn
+    const QString api_key = "your_api_key";//ryn
 
     /* 填写网页上申请的APP SECRET 如 $secretKey="94dc99566550d87f8fa8ece112xxxxx" */
     //const QString secret_key = "O9o1O213UgG5LFn0bDGNtoRN3VWl2du6";//原来的
