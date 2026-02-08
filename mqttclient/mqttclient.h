@@ -49,11 +49,11 @@ private:
     QMqttClient *m_client;
 
     // --- 请在此处填入你的 OneNET 设备信息 ---
-    const QString m_productId = "hxTOjZ5g22";      // 产品ID
+    const QString m_productId = "your_productid";      // 产品ID
     const QString m_deviceName = "imx6ull";        // 设备名称
     
     // 【重要】请使用 Token 工具生成的完整 Token 字符串
-    const QString m_token = "version=2018-10-31&res=products%2FhxTOjZ5g22%2Fdevices%2Fimx6ull&et=1833246810&method=sha256&sign=yh167XqHw7c1rGIhpBYgZtoClIrvUJ6l6Ofo3rfsXqo%3D";
+    const QString m_token = "your_mqtt_token";
 
     // Topic 定义
     QString m_topicSet;       // 订阅：接收控制
