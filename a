@@ -1,0 +1,91 @@
+[33mcommit 3974c90308e96da72599b782b1b1faec2cd3e54d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Wed Mar 4 11:31:52 2026 +0800
+
+    新增云端语音解析功能，优化系统架构
+
+[33mcommit da320d637dccd361d472d0b39199664d826b4472[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Wed Feb 4 19:42:50 2026 +0800
+
+    readme修改
+
+[33mcommit b3eff2a8b5a43e8ab1a74da44e0b360102baeffc[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Wed Feb 4 19:38:33 2026 +0800
+
+    新增mqtt云端同步与控制
+
+[33mcommit f1862a1566da4e41c69270cf14da2742263ce6db[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Fri Jan 30 21:45:57 2026 +0800
+
+    新增音频播放功能
+
+[33mcommit 7fc10d633c1e2f02de7d8c80a579d9afd9118687[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Mon Jan 26 13:06:21 2026 +0800
+
+    first commit
+    
+            新文件：   .gitignore
+            新文件：   .qmake.stash
+            新文件：   02_asr_demo/02_asr_demo.pro
+            新文件：   02_asr_demo/02_asr_demo.pro.user
+            新文件：   02_asr_demo/audio/sound.wav
+            新文件：   02_asr_demo/gif/voice_effect.gif
+            新文件：   02_asr_demo/main.cpp
+            新文件：   02_asr_demo/mainwindow.cpp
+            新文件：   02_asr_demo/mainwindow.h
+            新文件：   02_asr_demo/res.qrc
+            新文件：   Makefile
+            新文件：   README.md
+            新文件：   asr/asr.cpp
+            新文件：   asr/asr.h
+            新文件：   asr/asr.pri
+            新文件：   asr/asr.pro
+            新文件：   asr/main.cpp
+            新文件：   audiorecorder/audiorecorder.cpp
+            新文件：   audiorecorder/audiorecorder.h
+            新文件：   audiorecorder/audiorecorder.pri
+            新文件：   audiorecorder/audiorecorder.pro
+            新文件：   audiorecorder/main.cpp
+            新文件：   beep/beep.cpp
+            新文件：   beep/beep.h
+            新文件：   beep/beep.pri
+            新文件：   led/led.cpp
+            新文件：   led/led.h
+            新文件：   led/led.pri
+            新文件：   led/led.pro
+            新文件：   led/main.cpp
+            新文件：   musicplayer/musicplayer.cpp
+            新文件：   musicplayer/musicplayer.h
+            新文件：   sensor/ap3216c.cpp
+            新文件：   sensor/ap3216c.h
+            新文件：   sensor/sensor.pri
+            新文件：   sensor/sensor.pro
+            新文件：   sensor/sensorthread.cpp
+            新文件：   sensor/sensorthread.h
+            修改：     02_asr_demo/02_asr_demo.pro
+            修改：     02_asr_demo/02_asr_demo.pro.user
+            修改：     02_asr_demo/mainwindow.cpp
+            修改：     02_asr_demo/mainwindow.h
+            修改：     Makefile
+            修改：     README.md
+            修改：     audiorecorder/audiorecorder.cpp
+            修改：     audiorecorder/audiorecorder.h
+            修改：     beep/beep.cpp
+            修改：     musicplayer/musicplayer.cpp
+            修改：     musicplayer/musicplayer.h
+            修改：     sensor/ap3216c.cpp
+            修改：     sensor/ap3216c.h
+            修改：     sensor/sensorthread.cpp
+            musicplayer/musicplayer.pri
+            myMusic/
+            sensor/sensorthread.h.autosave
+
+[33mcommit 8a406f3a246bda43834dfe7ccf98d3ae8c819156[m
+Author: ryn123 <ryn12847501992@163.com>
+Date:   Mon Jan 26 13:06:21 2026 +0800
+
+    first commit
