@@ -104,15 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(myAsr, SIGNAL(asrReadyData(QString)), this, SLOT(onAsrReadyData(QString)));
 
 
-     // 新增：连接传感器线程信号到 MQTT 客户端槽函数
-     // 连接传感器数据更新信号到MQTT发布槽函数
-    // connect(m_sensorThread, &SensorThread::sensorDataUpdated, this, [this]() {
-    //     // 发布传感器数据到MQTT
-    //     int als = m_sensorThread->getAlsValue();
-    //     int ir = m_sensorThread->getIrValue();
-    //     myMqttClient->publishSensorData(als, ir);
-    // });
-
+     
     // 连接MQTT远程控制信号
     connect(myMqttClient, &MqttClient::remoteSwitchReceived, this, &MainWindow::onRemoteSwitchReceived);
 
@@ -120,6 +112,21 @@ MainWindow::MainWindow(QWidget *parent)
     myMqttClient->publishDeviceState("led", false);
     myMqttClient->publishDeviceState("beep", false);
     myMqttClient->publishDeviceState("music", false);
+
+    /* 云端Agent */
+    myCloudAgent = new CloudAgent(this);
+    // 设置云端Agent的API地址（可以从环境变量中读取）
+    myCloudAgent->setApiUrl("https://api.dify.ai/v1/chat-messages");
+    // 设置云端Agent的API密钥（可以从环境变量中读取）
+    myCloudAgent->setApiKey("app-WTOtVWnoOqBkgpccMs5KXqww");
+    
+    connect(myCloudAgent, &CloudAgent::commandReceived, this, &MainWindow::onCommandReceived);
+    connect(myCloudAgent, &CloudAgent::networkError, this, &MainWindow::onCloudAgentError);
+
+    /* 指令执行器 */
+    myCommandExecutor = new CommandExecutor(this);
+    myCommandExecutor->setDevices(myLed, myBeep, myMusicPlayer, m_sensorThread, myMqttClient);//设置指令执行器的设备
+    connect(myCommandExecutor, &CommandExecutor::statusUpdate, this, &MainWindow::onStatusUpdate);
 }
 MainWindow::~MainWindow()
 {
@@ -157,7 +164,7 @@ void MainWindow::onTimer1TimeOut()
     timer1->stop();
     myMovie->stop();
     QString fileName = QCoreApplication::applicationDirPath() + "/16k.wav";
-    myAsr->getTheResult(fileName);
+    myAsr->getTheResult(fileName);//获取识别结果
     timer3->start(30000);
 }
 
@@ -194,129 +201,52 @@ void MainWindow::onMqttPublishTimerTimeout()
 void MainWindow::onAsrReadyData(QString str)
 {
     m_sensorThread->startCapture();//恢复传感器采集线程
-    if (str.contains("开灯"))
-    {
-        myLed->setLedState(true);
-        myMqttClient->publishDeviceState("led", true);
-    }        
-
-    else if (str.contains("关灯")){
-        myLed->setLedState(false);
-        myMqttClient->publishDeviceState("led", false);
-    }
-
-    else if (str.contains("报警")||str.contains("鸣笛")){
-        myBeep->setbeepState(true);
-        myMqttClient->publishDeviceState("beer", true);
-    }
+    textLabel->setText("识别结果是:\n" + str);//显示识别结果
+    textLabel->adjustSize();//根据文本内容调整标签大小
+    // 发送语音识别结果到云端Agent获取控制指令
+    myCloudAgent->requestCommand(str);
 
 
-    // 新增：处理传感器数据查询
-    else if (str.contains("光照强度") || str.contains("传感器数据") || str.contains("环境数据")) {
-        qDebug() << "执行传感器数据查询";
-        // 确保线程已启动
-        if (!m_sensorThread) {
-            qDebug() << "传感器线程未初始化";
-            return;
-        }
-        
-        if (!m_sensorThread->isRunning()) {
-            m_sensorThread->startCapture();
-            qDebug() << "启动传感器线程";
-        }
-         // 立即获取并打印数据
-        QString alsData = m_sensorThread->getAlsData();
-        qDebug() << "获取的光照强度：" << alsData;
-        // qDebug() <<"传感器数据"<<m_sensorThread->getAlsData();
-
-        //更新UI显示传感器数据
-        m_showingSensorData = true;
-        sensorDataLabel->show(); // 显示传感器数据标签
-        textLabel->setText("正在获取环境数据...");
-
-        // 更新传感器数据显示
-        QString als = m_sensorThread->getAlsData();
-        QString ps = m_sensorThread->getPsData();
-        QString ir = m_sensorThread->getIrData();
-
-        QString sensorText = QString("传感器数据：\n光照强度：%1 接近距离：%2 红外数据：%3")
-                        .arg(als)
-                        .arg(ps)
-                        .arg(ir);
-        
-        sensorDataLabel->setText(sensorText);
-        textLabel->setText("环境数据已更新");
-
-
-        // 7秒后自动停止显示传感器数据
-        QTimer::singleShot(7000, [this]() {
-           m_showingSensorData = false;
-           sensorDataLabel->hide();
-           textLabel->setText("请点击，开始说话...");
-       });
-       }
-
-    // 新增：处理播放音乐命令
-    else if (str.contains("播放音乐") || str.contains("播放歌曲")) {
-           // 新增：处理播放音乐命令
-           qDebug() << "执行播放音乐命令";
-           myMusicPlayer->play();
-           myMqttClient->publishDeviceState("music", true);
-           QString currentMusic = myMusicPlayer->getCurrentMusicName();
-           textLabel->setText(QString("正在播放: %1").arg(currentMusic));
-       }
-       else if (str.contains("暂停音乐") || str.contains("暂停歌曲")) {
-           // 新增：处理暂停音乐命令
-           qDebug() << "执行暂停音乐命令";
-           textLabel->setText("音乐已暂停");
-           myMusicPlayer->pause();
-           myMqttClient->publishDeviceState("music", false);
-           QTimer::singleShot(5000, [this]() {
-           textLabel->setText("请点击，开始说话...");
-       });
-       }
-       else if (str.contains("停止音乐") || str.contains("停止歌曲")) {
-           // 新增：处理停止音乐命令
-           qDebug() << "执行停止音乐命令";
-           textLabel->setText("音乐已停止");
-           myMusicPlayer->stop();
-           myMqttClient->publishDeviceState("music", false);
-           QTimer::singleShot(5000, [this]() {
-           textLabel->setText("请点击，开始说话...");
-       });
-       }
-       else if (str.contains("下一首") || str.contains("下一曲")) {
-           // 新增：处理下一首音乐命令
-           qDebug() << "执行下一首音乐命令";
-           QString currentMusic = myMusicPlayer->getCurrentMusicName();
-           textLabel->setText(QString("正在播放 %1").arg(currentMusic));
-           myMusicPlayer->next();
-           myMqttClient->publishDeviceState("music", true);
-       }
-       else if (str.contains("上一首") || str.contains("上一曲")) {
-           // 新增：处理上一首音乐命令
-           qDebug() << "执行上一首音乐命令";
-           QString currentMusic = myMusicPlayer->getCurrentMusicName();
-           textLabel->setText(QString("正在播放 %1").arg(currentMusic));
-           myMusicPlayer->previous();
-           myMqttClient->publishDeviceState("music", true);
-       }
-
-
-
-       else {
-           // 普通语音识别结果
-           qDebug() << "执行普通识别结果处理";
-           textLabel->setText("识别结果是:\n" + str);
-           textLabel->adjustSize();
-           m_showingSensorData = false;
-           sensorDataLabel->hide();
-       }
-
-//    textLabel->setText("识别结果是:\n" + str);
-//    textLabel->adjustSize();
 }
 
+
+// 处理云端Agent返回的指令
+void MainWindow::onCommandReceived(QString type, QString target, QString command, QJsonObject params)
+{
+    // 执行命令
+    myCommandExecutor->executeCommand(type, target, command, params);
+}
+
+// 处理云端Agent错误
+void MainWindow::onCloudAgentError(const QString &error)
+{
+    qDebug() << "云端Agent错误:" << error;
+    textLabel->setText("云端服务错误: " + error);
+    
+    // 5秒后恢复默认提示
+    QTimer::singleShot(5000, [this]() {
+        textLabel->setText("请点击，开始说话...");
+    });
+}
+
+// 处理指令执行器状态更新
+void MainWindow::onStatusUpdate(const QString &message)
+{
+    // 更新UI显示状态
+    textLabel->setText(message);
+    
+    // 如果是传感器数据查询，显示更长时间
+    if (message.contains("传感器数据")) {
+        QTimer::singleShot(7000, [this]() {
+            textLabel->setText("请点击，开始说话...");
+        });
+    } else {
+        // 其他状态显示5秒
+        QTimer::singleShot(5000, [this]() {
+            textLabel->setText("请点击，开始说话...");
+        });
+    }
+}
 
 void MainWindow::onSensorDataUpdated()
 {
@@ -340,10 +270,7 @@ void MainWindow::onSensorDataUpdated()
     // 更新上次操作时间
     lastActionTime = QTime::currentTime();
     }
-    // 如果正在显示传感器数据，更新textLabel
-    // if (m_showingSensorData) {
-    //     textLabel->setText("环境数据已更新");
-    // }
+  
 }
 
 //新增2：处理远程控制指令槽函数

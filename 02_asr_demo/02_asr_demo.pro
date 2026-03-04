@@ -38,3 +38,5 @@ include(../beep/beep.pri)
 include(../sensor/sensor.pri)  # 新增：引用sensor模块
 include(../musicplayer/musicplayer.pri)  # 新增：引用musicplayer模块
 include(../mqttclient/mqttclient.pri)  # 新增：引用mqttclient模块
+include(../cloudagent/cloudagent.pri)
+include(../commandexecutor/commandexecutor.pri)

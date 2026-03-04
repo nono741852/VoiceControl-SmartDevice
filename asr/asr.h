@@ -12,8 +12,8 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 
 #include <QWidget>
 
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
+#include <QNetworkAccessManager>//网络访问管理器
+#include <QNetworkReply>//网络回复
 
 #include <QJsonDocument>
 #include <QJsonParseError>

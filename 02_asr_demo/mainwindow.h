@@ -23,6 +23,8 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 #include "../sensor/sensorthread.h"// 引入传感器线程类
 #include "../musicplayer/musicplayer.h"// 引入音乐播放器类
 #include "../mqttclient/mqttclient.h"// 引入MQTT客户端类
+#include "../cloudagent/cloudagent.h"// 引入云端Agent类语义解析
+#include "../commandexecutor/commandexecutor.h"// 引入指令执行类
 
 class Asr;
 class AudioRecorder;
@@ -73,9 +75,8 @@ private:
     /* 录音类 */
     AudioRecorder *myAudioRecorder;
 
-    /* 主意识别类 */
+    /* 语音识别类 */
     Asr *myAsr;
-
     /* 开发板LED */
     Led *myLed;
     SensorThread *m_sensorThread; // 新增：传感器采集线程
@@ -87,6 +88,11 @@ private:
     MusicPlayer *myMusicPlayer;
     /* MQTT客户端 */
     MqttClient *myMqttClient;
+    /* 云端Agent */
+    CloudAgent *myCloudAgent;
+    /*指令执行器*/
+    CommandExecutor *myCommandExecutor;
+
 
 private slots:
     void onTimer1TimeOut();
@@ -96,5 +102,9 @@ private slots:
     void onSensorDataUpdated(); // 新增：传感器数据更新槽函数
     void onRemoteSwitchReceived(QString key, bool value, QString msgId); // 新增：远程控制槽函数
     void onMqttPublishTimerTimeout(); // 新增：MQTT定时发布槽函数
+
+    void onCommandReceived(QString type, QString target, QString command, QJsonObject params); // 20260303新增：指令执行槽函数
+    void onCloudAgentError(const QString &error);// 云端Agent错误槽函数
+    void onStatusUpdate(const QString &message);// 指令执行状态更新槽函数
 };
 #endif // MAINWINDOW_H

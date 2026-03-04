@@ -123,15 +123,15 @@ void MqttClient::onMessageReceived(const QByteArray &message, const QMqttTopicNa
 {
     if (topic.name() == m_topicSet) {
         // 解析 OneJson 格式: {"id":"123", "params": {"led": true}}
-        QJsonDocument doc = QJsonDocument::fromJson(message);
-        QJsonObject root = doc.object();
-        QString msgId = root.value("id").toString();
-        QJsonObject params = root.value("params").toObject();
+        QJsonDocument doc = QJsonDocument::fromJson(message);//把收到的消息转换为 JSON 文档
+        QJsonObject root = doc.object();//获取 JSON 对象
+        QString msgId = root.value("id").toString();//读取消息ID并转换为字符串
+        QJsonObject params = root.value("params").toObject();//读取 params 对象 ，并转换为 JSON 对象
 
         // 遍历 params，支持同时控制多个设备
         for(auto key : params.keys()) {
             bool val = params.value(key).toBool();
-            emit remoteSwitchReceived(key, val, msgId);
+            emit remoteSwitchReceived(key, val, msgId);// 发送远程控制信号
         }
     }
 }

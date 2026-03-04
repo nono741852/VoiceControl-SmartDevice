@@ -23,10 +23,10 @@ Asr::Asr(QWidget *parent)
 
     tokenUrl = QString(token_org).arg(api_key).arg(secret_key);
 
-    QByteArray requestData;
-    requestData.clear();
+    QByteArray requestData;//请求数据
+    requestData.clear();//清空请求数据
 
-    requestNetwork(tokenUrl, requestData);
+    requestNetwork(tokenUrl, requestData);//请求token
 }
 
 Asr::~Asr()
@@ -40,10 +40,10 @@ void Asr::requestNetwork(QString url, QByteArray requestData)
     QNetworkRequest networkRequest;
 
     /* 开发板需要加一些安全配置才能访问https */
-    QSslConfiguration config;
-    config.setPeerVerifyMode(QSslSocket::VerifyNone);
-    config.setProtocol(QSsl::TlsV1SslV3);
-    networkRequest.setSslConfiguration(config);
+    QSslConfiguration config;//ssl配置
+    config.setPeerVerifyMode(QSslSocket::VerifyNone);//不验证服务器证书
+    config.setProtocol(QSsl::TlsV1SslV3);//设置ssl协议版本
+    networkRequest.setSslConfiguration(config);//设置ssl配置
 
     /* 以json格式返回 */
     networkRequest.setHeader(QNetworkRequest::ContentTypeHeader,
@@ -57,16 +57,16 @@ void Asr::requestNetwork(QString url, QByteArray requestData)
 
     /* 网络响应 */
     QNetworkReply *newReply = networkAccessManager->post(networkRequest, requestData);
-
-    connect(newReply, SIGNAL(finished()), this, SLOT(replyFinished()));
-    connect(newReply, SIGNAL(readyRead()), this, SLOT(readyReadData()));
+    //连接信号槽
+    connect(newReply, SIGNAL(finished()), this, SLOT(replyFinished()));//请求完成处理
+    connect(newReply, SIGNAL(readyRead()), this, SLOT(readyReadData()));//读取数据处理
 
 }
 
 /* 读取数据 */
 void Asr::readyReadData()
 {
-    QNetworkReply *reply = (QNetworkReply *)sender();
+    QNetworkReply *reply = (QNetworkReply *)sender();//获取发送者对象
     QByteArray data = reply->readAll();
     //ryn:打印原始数据进行验证
     qDebug() << "收到服务器1原始数据：" << data;
@@ -120,7 +120,7 @@ void Asr::replyFinished()
 
 void Asr::getTheResult(QString fileName)
 {
-    file.setFileName(fileName);
+    file.setFileName(fileName);//设置文件路径
     if (!file.exists()) {
         qDebug()<<"已返回，文件"<<fileName<<"不存在"<<endl;
         return;
@@ -129,12 +129,12 @@ void Asr::getTheResult(QString fileName)
     QByteArray requestData;
 
     file.open(QIODevice::ReadOnly);
-    requestData = file.readAll();
+    requestData = file.readAll();//读取文件数据
     file.close();
-
+    //构建语音识别请求url
     serverApiUrl = QString(server_api).arg(QHostInfo::localHostName()).arg(accessToken);
 
-    requestNetwork(serverApiUrl, requestData);
+    requestNetwork(serverApiUrl, requestData);//发送语音识别请求
 }
 
 /* Json解释分离数据 */
