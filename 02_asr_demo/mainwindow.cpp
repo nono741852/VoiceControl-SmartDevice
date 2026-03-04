@@ -119,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent)
     myCloudAgent->setApiUrl("https替换你的云端Agent地址");
     // 设置云端Agent的API密钥（可以从环境变量中读取）
     myCloudAgent->setApiKey("替换你的云端Agent密钥");
-    
     connect(myCloudAgent, &CloudAgent::commandReceived, this, &MainWindow::onCommandReceived);
     connect(myCloudAgent, &CloudAgent::networkError, this, &MainWindow::onCloudAgentError);
 
