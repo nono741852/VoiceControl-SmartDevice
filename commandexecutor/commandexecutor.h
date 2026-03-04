@@ -7,7 +7,6 @@ Copyright © Deng Zhimao Co., Ltd. 1990-2021. All rights reserved.
 * @date          2026-02-05
 * @version       1.0
 *******************************************************************/
-
 #ifndef COMMANDEXECUTOR_H
 #define COMMANDEXECUTOR_H
 
@@ -33,7 +32,7 @@ public:
     // 设置设备对象引用
     void setDevices(Led *led, Beep *beep, MusicPlayer *musicPlayer, 
                    SensorThread *sensorThread, MqttClient *mqttClient);
-    // 执行设备控制命令
+    //解析json控制命令
     void executeCommand(const QString &type, const QString &target, 
                        const QString &command, const QJsonObject &params);
 
@@ -45,9 +44,9 @@ private:
     SensorThread *m_sensorThread; // 传感器线程设备引用
     MqttClient *m_mqttClient; // MQTT客户端设备引用
 
-    //命令映射表
-    QMap<QString, std::function<void()>> m_controlCommands;
-    QMap<QString, std::function<void()>> m_queryCommands;
+    //命令映射表（将指令字符串映射到对应的成员函数）
+    QMap<QString, std::function<void()>> m_controlCommands;// 控制命令映射表
+    QMap<QString, std::function<void()>> m_queryCommands;// 查询命令映射表
 
     // 初始化命令映射表
     void initCommandMaps();
