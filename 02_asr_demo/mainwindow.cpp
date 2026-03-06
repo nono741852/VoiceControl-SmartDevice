@@ -59,7 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     myMovie = new QMovie(":/gif/voice_effect.gif");
     /* 设置播放速度，值越大越快 */
-    myMovie->setSpeed(30);//降低播放速度
+    myMovie->setSpeed(100);//// 标准速度
+    myMovie->setCacheMode(QMovie::CacheAll); // 缓存所有帧
     movieLabel->setMovie(myMovie);
     movieLabel->show();
     /* 设置设置化时显示第一帧 */
@@ -77,8 +78,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mqttPublishTimer, SIGNAL(timeout()), this, SLOT(onMqttPublishTimerTimeout()));
     /* 自定义的录音类 */
     myAudioRecorder = new AudioRecorder(this);
-    // 设置 MQTT 发布定时器，每 8秒发布一次传感器数据
-    mqttPublishTimer->start(8000);
+    // 设置 MQTT 发布定时器，每 2秒发布一次传感器数据
+    mqttPublishTimer->start(2000);
 
     /* MQTT客户端 */
     myMqttClient = new MqttClient(this);
@@ -95,9 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     /* 新增：传感器采集线程 */
     m_sensorThread = new SensorThread(this);
-   // qDebug() << "传感器线程创建：" << m_sensorThread;
-   // connect(m_sensorThread, SIGNAL(sensorDataUpdated()), this, SLOT(onSensorDataUpdated()));
-
+  
     // 应用启动时立即启动传感器线程
     m_sensorThread->startCapture();
     qDebug() << "传感器线程启动状态：" << m_sensorThread->isRunning();
